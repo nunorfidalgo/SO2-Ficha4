@@ -82,7 +82,7 @@ int _tmain(void) {
 		ReleaseMutex(MutexIn);
 
 		_tprintf(TEXT("Escrever para buffer %i\n"), i);
-		_stprintf_s(shm->buf[pos], BufferSize, TEXT("Pedido%d_#%02i\n"), GetCurrentProcessId(), i);
+		_stprintf_s(shm->buf[pos], BufferSize, TEXT("Pedido%d_#%02i"), GetCurrentProcessId(), i);
 		_tprintf(TEXT("Escrever para o buffer %d o valor '%s'\n"), pos, shm->buf[pos]);
 		Sleep(1000);
 		ReleaseSemaphore(PodeLer, 1, NULL);
