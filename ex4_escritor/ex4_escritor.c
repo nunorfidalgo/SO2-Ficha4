@@ -32,15 +32,10 @@ int _tmain(void) {
 	system("cls");
 
 	// criar mutex para acesso ao IN (nome = "Mutex IN")...
-	// mutex
-	MutexIn = CreateMutex(NULL, FALSE, "MutexIn");
-	if (MutexIn == NULL) {
-		_tprintf(TEXT("CreateMutex error: %d\n"), GetLastError());
-		return 1;
-	}
+
 
 	//PodeEscrever = CreateSemaphore(NULL, Buffers, Buffers, NomeSemaforoPodeEscrever);
-	PodeEscrever = CreateSemaphore(NULL, 0, Buffers, NomeSemaforoPodeEscrever);
+	PodeEscrever = CreateSemaphore(NULL, Buffers, Buffers, NomeSemaforoPodeEscrever);
 	PodeLer = CreateSemaphore(NULL, 0, Buffers, NomeSemaforoPodeLer);
 	hMemoria = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(DADOS), NomeMemoria);
 	if (PodeEscrever == NULL || PodeLer == NULL || hMemoria == NULL) {
@@ -59,13 +54,22 @@ int _tmain(void) {
 		return -1;
 	}
 
-	// inicializar o IN a zero no primeiro processo
-	if (init) {
+	// Criar MUTEX
+	// mutex
+	MutexIn = CreateMutex(NULL, TRUE, "MutexIn");
+	if (MutexIn == NULL) {
+		_tprintf(TEXT("CreateMutex error: %d\n"), GetLastError());
+		return 1;
+	}
+
+	// verificar se ja existe shm
+	if (GetLastError() != ERROR_ALREADY_EXISTS) {
 		// colocar IN a zero...
 		shm->In = 0;
 		shm->Out = 0;
 		// (Mutex ou) restaurar valor do semaforo PodeEscrever(+10)... ou seja release de 10 unidades, alterar na criacao para 0 ate 10
-		ReleaseSemaphore(PodeEscrever, 10, NULL);
+		/*ReleaseSemaphore(PodeEscrever, 10, NULL);*/
+		ReleaseMutex(MutexIn);
 	}
 
 	for (int i = 0; i < 100; i++)
